@@ -40,7 +40,7 @@
 			<p class="more">
 				<a
 					class="btn"
-					href="?n={data.n + data.page}"
+					href="?n={data.next}"
 					data-sveltekit-reset="false"
 					data-sveltekit-replacestate>More videos</a
 				>

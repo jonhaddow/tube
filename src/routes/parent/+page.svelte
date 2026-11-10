@@ -1,14 +1,14 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
+	import { enhance, type SubmitFunction } from '$app/forms';
 	import Avatar from '#lib/components/Avatar.svelte';
 	import BackIcon from '#lib/components/BackIcon.svelte';
 	import type { PageProps } from './$types';
 	let { data, form }: PageProps = $props();
 	let busy = $state(false);
 
-	const submitting = () => {
+	const submitting: SubmitFunction = () => {
 		busy = true;
-		return async ({ update }: { update: (o?: { reset?: boolean }) => Promise<void> }) => {
+		return async ({ update }) => {
 			await update();
 			busy = false;
 		};

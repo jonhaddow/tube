@@ -45,7 +45,7 @@ function fake(answers: Record<string, unknown>) {
 }
 
 describe('youtubeApi uploads', () => {
-	it('lists the uploads without Shorts, dropping ones that can’t be embedded, are live or blocked in the UK', async () => {
+	it('lists the uploads without Shorts, dropping ones that can’t be embedded, are live, age-restricted or blocked in the UK', async () => {
 		const video = (id: string, extra: object = {}) => ({
 			id,
 			snippet: { title: id, publishedAt: '2026-11-01T00:00:00Z', liveBroadcastContent: 'none' },
@@ -56,11 +56,16 @@ describe('youtubeApi uploads', () => {
 		const { fetcher, urls } = fake({
 			playlistItems: {
 				nextPageToken: 'P2',
-				items: ['a', 'b', 'c', 'd', 'e', 'f'].map((videoId) => ({ contentDetails: { videoId } }))
+				items: ['a', 'b', 'c', 'd', 'e', 'f', 'g'].map((videoId) => ({
+					contentDetails: { videoId }
+				}))
 			},
 			videos: {
 				items: [
 					video('a'),
+					video('g', {
+						contentDetails: { duration: 'PT1M', contentRating: { ytRating: 'ytAgeRestricted' } }
+					}),
 					video('e', {
 						contentDetails: { duration: 'PT1M', regionRestriction: { blocked: ['GB'] } }
 					}),

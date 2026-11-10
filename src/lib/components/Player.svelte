@@ -15,6 +15,10 @@
 	let box = $state<HTMLDivElement>();
 	let playing = $state(false);
 	let started = $state(false);
+	/** The player said it's waiting to start (unstarted or cued): not an error screen. */
+	let waiting = false;
+	/** YouTube can't play it here (age limit, made private since…): our own message instead. */
+	let failed = $state(false);
 	/** Autoplay was refused (iPad Safari can): the first tap goes to YouTube's own play button. */
 	let needsTap = $state(false);
 	let time = $state(0);
@@ -41,23 +45,32 @@
 				JSON.stringify({ event: 'listening', id: 1, channel: 'widget' }),
 				YOUTUBE
 			);
-			timer = setTimeout(() => (needsTap = !started), 2000);
+			timer = setTimeout(() => (needsTap = waiting && !started && !failed), 2000);
 		};
 		const onmessage = (e: MessageEvent) => {
 			if (e.source !== el.contentWindow || typeof e.data !== 'string') return;
-			let info: { duration?: unknown; currentTime?: unknown; playerState?: unknown } | undefined;
+			type Info = { duration?: unknown; currentTime?: unknown; playerState?: unknown };
+			let msg: { event?: unknown; info?: Info | null };
 			try {
-				info = (JSON.parse(e.data) as { info?: typeof info }).info;
+				msg = JSON.parse(e.data) as typeof msg;
 			} catch {
 				return;
 			}
+			// Its error screen has a "Watch on YouTube" link: keep the shield shut over it.
+			if (msg.event === 'onError') {
+				failed = true;
+				needsTap = false;
+				return;
+			}
+			const info = msg.info;
 			if (!info) return;
 			if (typeof info.duration === 'number' && info.duration > 0) duration = info.duration;
 			if (typeof info.currentTime === 'number' && !seeking) time = info.currentTime;
 			if (typeof info.playerState === 'number') {
 				const state = info.playerState;
-				// 1 playing, 3 buffering, 2 paused, 0 ended.
+				// 1 playing, 3 buffering, 2 paused, 0 ended, -1 unstarted, 5 cued.
 				playing = state === 1 || state === 3;
+				if (state === -1 || state === 5) waiting = true;
 				if (playing) started = true;
 				if (started) needsTap = false;
 				if (state === 0) onended();
@@ -116,6 +129,9 @@
 			allow="autoplay; encrypted-media"
 			referrerpolicy="strict-origin-when-cross-origin"
 		></iframe>
+		{#if failed}
+			<p class="failed">This video won’t play here. Pick another one.</p>
+		{/if}
 		<!-- Taps on the video play and pause; none reach YouTube's links. -->
 		<div class="shield" class:open={needsTap} aria-hidden="true">
 			{#each Array(9), i (i)}
@@ -226,6 +242,18 @@
 		width: 100%;
 		height: 100%;
 		border: 0;
+	}
+	.failed {
+		position: absolute;
+		inset: 0;
+		z-index: 1;
+		display: grid;
+		place-items: center;
+		margin: 0;
+		padding: 24px;
+		text-align: center;
+		color: var(--amber);
+		background: #000;
 	}
 	.shield {
 		position: absolute;

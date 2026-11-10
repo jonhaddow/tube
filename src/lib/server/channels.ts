@@ -10,7 +10,16 @@ const PAGES_PER_SYNC = 8;
 /** D1 allows 100 bound values per query; a video row has 5. */
 const ROWS_PER_INSERT = 20;
 
-/** Every channel, A to Z, with how many videos it has. */
+/** The channels the kids see, A to Z: those with videos so far. */
+export function kidsChannels(db: DB) {
+	return db
+		.select({ id: channel.id, title: channel.title, avatar: channel.avatar })
+		.from(channel)
+		.where(sql`EXISTS (SELECT 1 FROM ${video} WHERE ${video.channelId} = ${channel.id})`)
+		.orderBy(sql`${channel.title} COLLATE NOCASE`);
+}
+
+/** Every channel, A to Z, with how many videos it has (for the grown-ups' page). */
 export function listChannels(db: DB) {
 	return db
 		.select({
