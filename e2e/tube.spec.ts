@@ -21,7 +21,7 @@ test('a grown-up adds a channel and the kids can watch it', async ({ page, brows
 	await expect(kids.getByRole('heading', { name: 'bluey episode 9' })).toBeVisible();
 	await expect(kids.locator('iframe')).toHaveAttribute(
 		'src',
-		/youtube-nocookie\.com\/embed\/.*controls=0/
+		/youtube-nocookie\.com\/embed\/.*enablejsapi=1/
 	);
 	await kids.getByRole('link', { name: 'Back to Bluey' }).click();
 	await expect(kids).toHaveURL(/\/c\//);
