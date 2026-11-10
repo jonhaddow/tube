@@ -8,6 +8,7 @@ A YouTube for two kids (6–8) on iPads: only channels a grown-up has allowed, n
 - Videos come from the uploads-without-Shorts playlist (`UULF` + the channel id without `UC`), then `videos.list` to drop ones that can't be embedded, are live, or are blocked in the UK (`youtube.ts`). Thumbnails aren't stored: `i.ytimg.com/vi/<id>/hqdefault.jpg`.
 - No cron: the free plan's five are taken by other apps. Instead any visit starts a sync in the background (`waitUntil` in `hooks.server.ts`), at most every 10 minutes (`syncIfDue`, claimed atomically in `sync_state`). It does 5 pages of 50, sharing the visit's CPU limit: the newest page of channels not checked for 6 hours, then older pages (`channel.olderPage`, null when done).
 - The player (`Player.svelte`): `controls=0` and a shield over the iframe so nothing in YouTube's player can be tapped; our buttons talk to it with the embed's postMessage API. If autoplay is refused, the shield's middle opens for one tap on YouTube's play button. Ending goes back to the channel.
+- Where each video was left is kept per device in localStorage (`positions.ts`), not D1: the player seeks there once it starts, and channel pages show a bar on part-watched thumbnails.
 - Local dev and e2e use made-up channels (`fake-youtube.ts`) without `YOUTUBE_API_KEY`; e2e and `shot.sh` always do (`FAKE_YOUTUBE=1`).
 - No Tailwind or shadcn: plain CSS in `app.css`. The look is a terminal (green on black, monospace, square corners) so it doesn't feel babyish to the boys.
 

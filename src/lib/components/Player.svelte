@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
+	import { positionOf, savePosition } from '#lib/positions.ts';
 	import { clock } from '#lib/time.ts';
 
 	// YouTube's no-cookie player with its own controls hidden and a shield over it,
@@ -39,11 +40,21 @@
 		frame?.contentWindow?.postMessage(JSON.stringify({ event: 'command', func, args }), YOUTUBE);
 	}
 
+	// Where it was left on this device: it jumps there once it starts playing.
+	let resumeAt: number | null = null;
+	let saved = 0;
+	function save() {
+		if (!started || !duration) return;
+		saved = time;
+		savePosition(id, time, duration);
+	}
+
 	const toggle = () => command(playing ? 'pauseVideo' : 'playVideo');
 
 	// Once told we're listening, the player posts its state several times a second.
 	function listen(el: HTMLIFrameElement) {
 		let timer: ReturnType<typeof setTimeout> | undefined;
+		resumeAt = positionOf(id);
 		const hello = () => {
 			el.contentWindow?.postMessage(
 				JSON.stringify({ event: 'listening', id: 1, channel: 'widget' }),
@@ -75,14 +86,30 @@
 				// 1 playing, 3 buffering, 2 paused, 0 ended, -1 unstarted, 5 cued.
 				playing = state === 1 || state === 3;
 				if (state === -1 || state === 5) waiting = true;
-				if (playing) started = true;
+				if (playing && !started) {
+					started = true;
+					if (resumeAt) command('seekTo', [resumeAt, true]);
+				}
 				if (started) needsTap = false;
-				if (state === 0) onended();
+				if (state === 2) save();
+				if (state === 0) {
+					// Finished: forgotten, so next time it starts from the beginning.
+					time = duration;
+					save();
+					onended();
+					return;
+				}
 			}
+			if (playing && Math.abs(time - saved) >= 15) save();
 		};
+		const onhide = () => document.hidden && save();
 		el.addEventListener('load', hello);
 		addEventListener('message', onmessage);
+		document.addEventListener('visibilitychange', onhide);
 		return () => {
+			// Leaving the page (Back) saves too.
+			save();
+			document.removeEventListener('visibilitychange', onhide);
 			clearTimeout(timer);
 			el.removeEventListener('load', hello);
 			removeEventListener('message', onmessage);
