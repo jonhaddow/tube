@@ -57,24 +57,16 @@
 	// for again on coming back.
 	$effect(() => {
 		if (!playing || !('wakeLock' in navigator)) return;
-		let lock: WakeLockSentinel | undefined;
-		let done = false;
-		const take = async () => {
-			if (document.hidden || (lock && !lock.released)) return;
-			try {
-				const next = await navigator.wakeLock.request('screen');
-				if (done) void next.release();
-				else lock = next;
-			} catch {
-				// Refused (low battery mode): the screen just dims as before.
-			}
+		// Refused (low battery mode): the screen just dims as before.
+		let lock: Promise<WakeLockSentinel | undefined> | undefined;
+		const take = () => {
+			if (!document.hidden) lock = navigator.wakeLock.request('screen').catch(() => undefined);
 		};
-		void take();
+		take();
 		document.addEventListener('visibilitychange', take);
 		return () => {
-			done = true;
 			document.removeEventListener('visibilitychange', take);
-			void lock?.release();
+			void lock?.then((l) => l?.release());
 		};
 	});
 
