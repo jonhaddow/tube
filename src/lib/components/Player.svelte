@@ -24,8 +24,12 @@
 	let time = $state(0);
 	let duration = $state(0);
 	let seeking = $state(false);
-	let fullscreen = $state(false);
-	let canFullscreen = $state(false);
+	/** Real fullscreen (iPad, computers). */
+	let native = $state(false);
+	/** iPhones can't make an element fullscreen: the player fills the window instead. */
+	let filling = $state(false);
+	let canFullscreen = false;
+	const fullscreen = $derived(native || filling);
 
 	const src = $derived(
 		`${YOUTUBE}/embed/${id}?${PARAMS}&origin=${encodeURIComponent(page.url.origin)}`
@@ -89,7 +93,7 @@
 		canFullscreen =
 			document.fullscreenEnabled || 'webkitRequestFullscreen' in document.documentElement;
 		const update = () =>
-			(fullscreen = !!(
+			(native = !!(
 				document.fullscreenElement ??
 				(document as Document & { webkitFullscreenElement?: Element }).webkitFullscreenElement
 			));
@@ -104,8 +108,12 @@
 	type WebkitEl = HTMLElement & { webkitRequestFullscreen?: () => void };
 	type WebkitDoc = Document & { webkitExitFullscreen?: () => void };
 	function toggleFullscreen() {
+		if (!canFullscreen) {
+			filling = !filling;
+			return;
+		}
 		const d = document as WebkitDoc;
-		if (fullscreen) {
+		if (native) {
 			if (d.exitFullscreen) void d.exitFullscreen();
 			else d.webkitExitFullscreen?.();
 		} else if (box) {
@@ -179,35 +187,33 @@
 			style:--done="{duration ? (time / duration) * 100 : 0}%"
 		/>
 		<span class="time">{clock(time)} / {clock(duration)}</span>
-		{#if canFullscreen}
-			<button
-				class="full"
-				onclick={toggleFullscreen}
-				aria-label={fullscreen ? 'Exit full screen' : 'Full screen'}
-			>
-				<svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true">
-					{#if fullscreen}
-						<path
-							d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"
-							fill="none"
-							stroke="currentColor"
-							stroke-width="2.5"
-							stroke-linecap="round"
-							stroke-linejoin="round"
-						/>
-					{:else}
-						<path
-							d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"
-							fill="none"
-							stroke="currentColor"
-							stroke-width="2.5"
-							stroke-linecap="round"
-							stroke-linejoin="round"
-						/>
-					{/if}
-				</svg>
-			</button>
-		{/if}
+		<button
+			class="full"
+			onclick={toggleFullscreen}
+			aria-label={fullscreen ? 'Exit full screen' : 'Full screen'}
+		>
+			<svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true">
+				{#if fullscreen}
+					<path
+						d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2.5"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+					/>
+				{:else}
+					<path
+						d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2.5"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+					/>
+				{/if}
+			</svg>
+		</button>
 	</div>
 </div>
 
@@ -222,8 +228,12 @@
 		overflow: hidden;
 	}
 	.player.fullscreen {
+		position: fixed;
+		inset: 0;
+		z-index: 50;
 		width: 100vw;
 		height: 100vh;
+		height: 100dvh;
 		border: 0;
 		box-shadow: none;
 	}

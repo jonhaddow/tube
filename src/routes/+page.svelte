@@ -68,6 +68,18 @@
 		border-color: var(--green);
 		box-shadow: var(--glow);
 	}
+	/* Two a row on phones: the pictures shrink to fit. */
+	@media (max-width: 480px) {
+		.channels {
+			grid-template-columns: 1fr 1fr;
+			gap: 20px 12px;
+		}
+		.channels :global(.avatar) {
+			width: 100% !important;
+			height: auto !important;
+			aspect-ratio: 1;
+		}
+	}
 	.name {
 		max-width: 100%;
 		font-size: 14px;
