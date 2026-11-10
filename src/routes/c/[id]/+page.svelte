@@ -1,9 +1,14 @@
 <script lang="ts">
 	import Avatar from '#lib/components/Avatar.svelte';
 	import BackIcon from '#lib/components/BackIcon.svelte';
+	import { onMount } from 'svelte';
+	import { allPositions } from '#lib/positions.ts';
 	import { clock } from '#lib/time.ts';
 	import type { PageProps } from './$types';
 	let { data }: PageProps = $props();
+	// Part-watched videos get a bar: where they were left, on this device.
+	let positions = $state<Record<string, number>>({});
+	onMount(() => (positions = allPositions()));
 </script>
 
 <svelte:head>
@@ -30,6 +35,12 @@
 								referrerpolicy="no-referrer"
 							/>
 							<span class="length">{clock(v.seconds)}</span>
+							{#if positions[v.id] && v.seconds}
+								<span
+									class="watched"
+									style:width="{Math.min(100, (positions[v.id] / v.seconds) * 100)}%"
+								></span>
+							{/if}
 						</span>
 						<span class="title"><span>{v.title}</span></span>
 					</a>
@@ -117,6 +128,14 @@
 		color: var(--amber);
 		background: rgb(0 0 0 / 0.8);
 		border-radius: 2px;
+	}
+	.watched {
+		position: absolute;
+		left: 0;
+		bottom: 0;
+		height: 4px;
+		background: var(--green);
+		box-shadow: var(--glow);
 	}
 	.title {
 		padding: 10px 12px 12px;
