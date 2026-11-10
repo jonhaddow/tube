@@ -15,14 +15,14 @@ export default defineConfig({
 				process.env.E2E_DB ? { platformProxy: { persist: { path: process.env.E2E_DB } } } : {}
 			),
 			// SvelteKit adds nonces for its own inline scripts. Inline styles stay allowed.
-			// The fonts are served with the app. YouTube: the no-cookie player, thumbnails
+			// The fonts are served with the app (Vite inlines tiny ones as data: URLs). YouTube: the no-cookie player, thumbnails
 			// (i.ytimg.com) and channel pictures (yt3.*).
 			csp: {
 				directives: {
 					'default-src': ['self'],
 					'script-src': ['self'],
 					'style-src': ['self', 'unsafe-inline'],
-					'font-src': ['self'],
+					'font-src': ['self', 'data:'],
 					'img-src': [
 						'self',
 						'data:',
