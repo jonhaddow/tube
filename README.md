@@ -1,35 +1,19 @@
 # Tube
 
-The kids' YouTube, without YouTube: only the channels we've chosen, no ads, no Shorts and no links out. A web app for the kids' iPads.
+A YouTube for younger kids, without YouTube: only channels a grown-up has chosen, with no ads, no Shorts, no autoplay and no links out.
 
-- The kids' side needs no sign-in: channels, then a channel's videos (newest first), then the player.
-- The player is YouTube's no-cookie embed with its own controls, so full screen is the device's own. When a video ends it goes back to the channel: no autoplay.
-- Grown-ups sign in with Google at `/parent` to add channels (a link, an @handle or a name to search) and remove them.
-- Visits fetch videos from the YouTube Data API in the background, at most every 10 minutes: the newest every 6 hours, and older ones a few pages at a time until it has the whole channel.
+Kids browse channels and watch videos with no sign-in. Grown-ups sign in to add or remove channels, and new videos are fetched in the background.
 
-Stack: SvelteKit (Svelte 5) on Cloudflare Workers, Drizzle ORM on Cloudflare D1, Vitest and Playwright.
+## Tech stack
 
-## Running locally
+- [SvelteKit](https://svelte.dev) (Svelte 5) and TypeScript, as an installable PWA
+- [Cloudflare Workers](https://workers.cloudflare.com), with [D1](https://developers.cloudflare.com/d1/) (SQLite) through [Drizzle ORM](https://orm.drizzle.team)
+- Google sign-in ([Arctic](https://arcticjs.dev)) for the grown-ups' page
+- Plain CSS, styled as a retro terminal
+- [YouTube Data API](https://developers.google.com/youtube/v3) and YouTube's no-cookie embedded player
+- [Vitest](https://vitest.dev) and [Playwright](https://playwright.dev) for tests
+- Deployed from `main` by Cloudflare Workers Builds
 
-```sh
-npm install
-npm run db:migrate:local
-npx wrangler d1 execute tube --local --command "INSERT INTO user (email, name) VALUES ('you@example.com', 'You')"
-cp .dev.vars.example .dev.vars   # add YOUTUBE_API_KEY for real channels; without it they're made up
-npm run dev    # the login page has dev-only "Sign in as" buttons
-```
+## Development
 
-Tests: `npm test` (unit), `npm run test:e2e` (Playwright, always with made-up channels), `npm run check` (types), `npm run lint`.
-
-## Installing on an iPad
-
-Open the app in Safari, then Share → Add to Home Screen.
-
-## Configuration
-
-Vars in `wrangler.jsonc`: `GOOGLE_CLIENT_ID`.
-
-Secrets (`wrangler secret put`):
-
-- `GOOGLE_CLIENT_SECRET`
-- `YOUTUBE_API_KEY`: a YouTube Data API v3 key (Stash's).
+See [`docs/development.md`](docs/development.md) for running it locally, configuration and deploying.
