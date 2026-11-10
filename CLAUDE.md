@@ -9,7 +9,7 @@ A YouTube for two kids (6–8) on iPads: only channels a grown-up has allowed, n
 - The sync (`channels.ts`) does 8 pages of 50 a run, every 10 minutes, to stay inside the free plan's subrequests and D1 queries: the newest page of channels not checked for 6 hours, then older pages (`channel.olderPage`, null when done).
 - The player (`Player.svelte`): `controls=0` and a shield over the iframe so nothing in YouTube's player can be tapped; our buttons talk to it with the embed's postMessage API. If autoplay is refused, the shield's middle opens for one tap on YouTube's play button. Ending goes back to the channel.
 - Local dev and e2e use made-up channels (`fake-youtube.ts`) without `YOUTUBE_API_KEY`; e2e and `shot.sh` always do (`FAKE_YOUTUBE=1`).
-- No Tailwind or shadcn: plain CSS in `app.css` (sticker look: `--line`, `--lift`).
+- No Tailwind or shadcn: plain CSS in `app.css`. The look is a terminal (green on black, monospace, square corners) so it doesn't feel babyish to the boys.
 
 ## Review focus
 

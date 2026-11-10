@@ -41,9 +41,11 @@
 		margin: 0 0 20px;
 	}
 	h1 {
-		font-family: var(--body);
-		font-weight: 700;
-		font-size: 22px;
+		font-family: var(--mono);
+		font-weight: 600;
+		font-size: 18px;
+		color: var(--text);
+		text-shadow: none;
 		line-height: 1.2;
 		display: -webkit-box;
 		-webkit-line-clamp: 2;

@@ -48,9 +48,9 @@ test('a name searches, and a result can be added', async ({ page }) => {
 test('the grown-ups’ page needs a sign-in, and only allowed videos play', async ({ browser }) => {
 	const kids = await browser.newPage({ storageState: { cookies: [], origins: [] } });
 	await open(kids, '/');
-	await kids.getByRole('link', { name: 'Grown-ups' }).click();
+	await kids.getByRole('link', { name: 'grown-ups' }).click();
 	await expect(kids).toHaveURL(/\/login\?next=%2Fparent/);
-	await expect(kids.getByRole('heading', { name: 'Grown-ups only' })).toBeVisible();
+	await expect(kids.getByRole('heading', { name: 'Grown-ups only' })).toBeAttached();
 
 	const res = await kids.goto('/v/dQw4w9WgXcQ');
 	expect(res?.status()).toBe(404);

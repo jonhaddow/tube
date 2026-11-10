@@ -11,7 +11,10 @@
 
 <main class="page">
 	<header>
-		<h1><Wordmark size={52} /></h1>
+		<h1><Wordmark size={64} /></h1>
+		<p class="muted">
+			// {data.channels.length} channel{data.channels.length === 1 ? '' : 's'} online
+		</p>
 	</header>
 
 	{#if data.channels.length}
@@ -19,25 +22,28 @@
 			{#each data.channels as c (c.id)}
 				<li>
 					<a href="/c/{c.id}">
-						<Avatar src={c.avatar} title={c.title} size={132} />
+						<Avatar src={c.avatar} title={c.title} size={150} />
 						<span class="name">{c.title}</span>
 					</a>
 				</li>
 			{/each}
 		</ul>
 	{:else}
-		<div class="empty card">
+		<div class="empty">
 			<h2>No channels yet</h2>
-			<p>Ask a grown-up to pick some.</p>
+			<p class="muted">Ask a grown-up to add some.</p>
 		</div>
 	{/if}
 
-	<footer><a href="/parent">Grown-ups</a></footer>
+	<footer><a href="/parent">grown-ups</a></footer>
 </main>
 
 <style>
 	header {
-		margin: 8px 0 36px;
+		margin: 4px 0 32px;
+	}
+	header p {
+		margin: 6px 0 0;
 	}
 	.channels {
 		list-style: none;
@@ -45,36 +51,36 @@
 		padding: 0;
 		display: grid;
 		grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
-		gap: 36px 20px;
+		gap: 28px 20px;
 	}
 	.channels a {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: 14px;
+		gap: 10px;
+		padding: 10px;
 		text-decoration: none;
-		transition: transform 100ms;
+		border: 1px solid transparent;
+		border-radius: 2px;
 	}
-	.channels a:active {
-		transform: scale(0.95);
+	.channels a:active,
+	.channels a:hover {
+		border-color: var(--green);
+		box-shadow: var(--glow);
 	}
 	.name {
 		max-width: 100%;
-		padding: 5px 12px;
-		font-weight: 700;
+		font-size: 14px;
+		font-weight: 600;
 		text-align: center;
-		background: var(--paper);
-		border: var(--line);
-		border-radius: 10px;
-		box-shadow: var(--lift-small);
 		overflow-wrap: anywhere;
 	}
 	footer {
 		margin-top: 64px;
 		text-align: center;
-		font-size: 14px;
+		font-size: 13px;
 	}
 	footer a {
-		color: rgb(20 22 26 / 0.55);
+		color: var(--muted);
 	}
 </style>
