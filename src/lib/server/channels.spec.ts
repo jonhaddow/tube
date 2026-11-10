@@ -5,7 +5,8 @@ import {
 	getVideo,
 	listChannels,
 	removeChannel,
-	sync
+	sync,
+	syncIfDue
 } from './channels.ts';
 import { fakeYoutube } from './fake-youtube.ts';
 import { testDb } from './test-db.ts';
@@ -45,6 +46,17 @@ describe('channels', () => {
 		await sync(db, fakeYoutube, new Date('2026-11-10T00:10:00Z'));
 		expect(await sync(db, fakeYoutube, new Date('2026-11-10T05:00:00Z'))).toEqual([]);
 		expect(await sync(db, fakeYoutube, new Date('2026-11-10T07:00:00Z'))).toEqual(['a: newest']);
+	});
+
+	it('syncs on visits at most every 10 minutes', async () => {
+		const db = await testDb();
+		await addChannel(db, fakeYoutube, info('a'), new Date('2026-11-10T00:00:00Z'));
+		expect(await syncIfDue(db, fakeYoutube, new Date('2026-11-10T00:01:00Z'))).toEqual([
+			'a: older',
+			'a: older'
+		]);
+		expect(await syncIfDue(db, fakeYoutube, new Date('2026-11-10T00:05:00Z'))).toBeNull();
+		expect(await syncIfDue(db, fakeYoutube, new Date('2026-11-10T00:12:00Z'))).toEqual([]);
 	});
 
 	it('only plays videos of allowed channels, and removing one removes its videos', async () => {

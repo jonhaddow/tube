@@ -29,12 +29,8 @@ declare global {
 			GOOGLE_CLIENT_ID: string;
 			/** Worker secret: `wrangler secret put GOOGLE_CLIENT_SECRET`. */
 			GOOGLE_CLIENT_SECRET: string;
-			/** Authenticates the cron's call to /sync. */
-			CRON_SECRET?: string;
 			/** Worker secret, shared with Stash. Without it, made-up channels (fake-youtube.ts). */
 			YOUTUBE_API_KEY?: string;
-			/** e.g. https://tube.app.haddow.me (used by the cron). */
-			APP_ORIGIN?: string;
 		}
 	}
 }

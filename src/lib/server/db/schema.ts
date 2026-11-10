@@ -61,3 +61,9 @@ export const video = sqliteTable(
 );
 
 export type Video = typeof video.$inferSelect;
+
+/** One row: when a sync last started, so visits start one at most every 10 minutes. */
+export const syncState = sqliteTable('sync_state', {
+	id: integer('id').primaryKey(),
+	startedAt: text('started_at').notNull()
+});
