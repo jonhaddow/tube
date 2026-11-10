@@ -44,7 +44,8 @@
 	let resumeAt: number | null = null;
 	let saved = 0;
 	function save() {
-		if (!started || !duration) return;
+		// Not until the jump back has landed, or a quick Back would save ~0 over it.
+		if (!started || !duration || resumeAt) return;
 		saved = time;
 		savePosition(id, time, duration);
 	}
@@ -81,6 +82,7 @@
 			if (!info) return;
 			if (typeof info.duration === 'number' && info.duration > 0) duration = info.duration;
 			if (typeof info.currentTime === 'number' && !seeking) time = info.currentTime;
+			if (resumeAt && started && time >= resumeAt - 2) resumeAt = null;
 			if (typeof info.playerState === 'number') {
 				const state = info.playerState;
 				// 1 playing, 3 buffering, 2 paused, 0 ended, -1 unstarted, 5 cued.
@@ -94,6 +96,7 @@
 				if (state === 2) save();
 				if (state === 0) {
 					// Finished: forgotten, so next time it starts from the beginning.
+					resumeAt = null;
 					time = duration;
 					save();
 					onended();
@@ -208,6 +211,7 @@
 			bind:value={time}
 			oninput={() => (seeking = true)}
 			onchange={() => {
+				resumeAt = null;
 				command('seekTo', [time, true]);
 				seeking = false;
 			}}
