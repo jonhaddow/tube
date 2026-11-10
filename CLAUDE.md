@@ -11,6 +11,7 @@ A YouTube for two kids (6–8) on iPads: only channels a grown-up has allowed, n
 - Where each video was left is kept per device in localStorage (`positions.ts`), not D1: the player seeks there once it starts, and channel pages show a bar on part-watched thumbnails.
 - Local dev and e2e use made-up channels (`fake-youtube.ts`) without `YOUTUBE_API_KEY`; e2e and `shot.sh` always do (`FAKE_YOUTUBE=1`).
 - No Tailwind or shadcn: plain CSS in `app.css`. The look is a terminal (green on black, monospace, square corners) so it doesn't feel babyish to the boys.
+- Secrets: `GOOGLE_CLIENT_SECRET`, `YOUTUBE_API_KEY` (YouTube Data API v3; the same key as stash).
 
 ## Review focus
 
