@@ -1,9 +1,11 @@
 import { error, redirect } from '@sveltejs/kit';
 import type { Handle } from '@sveltejs/kit/hooks';
-import { env } from 'cloudflare:workers';
+import { env, waitUntil } from 'cloudflare:workers';
 import { drizzle } from 'drizzle-orm/d1';
 import * as schema from '#lib/server/db/schema.ts';
 import { SESSION_COOKIE, setSessionCookie, validateSession } from '#lib/server/auth.ts';
+import { syncIfDue } from '#lib/server/channels.ts';
+import { youtube } from '#lib/server/youtube-client.ts';
 
 /**
  * Pages that need a grown-up's sign-in. Everything else is the kids' side, open
@@ -43,6 +45,9 @@ export const handle: Handle = async ({ event, resolve }) => {
 	}
 
 	const response = await resolve(event);
+	// Fetch videos in the background after a visit, at most every 10 minutes.
+	if (event.request.method === 'GET' && !path.startsWith('/auth/'))
+		waitUntil(syncIfDue(db, youtube()).catch((e: unknown) => console.error('Sync failed', e)));
 	for (const [name, value] of Object.entries(SECURITY_HEADERS)) response.headers.set(name, value);
 	// Pages name this build's files, which the next deploy deletes. Without this,
 	// iOS reopens the home-screen app from a cached page whose CSS and JS are gone.

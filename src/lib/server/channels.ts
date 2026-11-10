@@ -1,12 +1,14 @@
-import { asc, count, desc, eq, inArray, isNotNull, sql } from 'drizzle-orm';
+import { asc, count, desc, eq, inArray, isNotNull, lt, sql } from 'drizzle-orm';
 import type { DB } from './db/index.ts';
-import { channel, video } from './db/schema.ts';
+import { channel, syncState, video } from './db/schema.ts';
 import type { ChannelInfo, VideoInfo, YouTube } from './youtube.ts';
 
+/** Visits start a sync at most this often. */
+const SYNC_EVERY_MINUTES = 10;
 /** How often a channel's newest videos are fetched again. */
 const REFRESH_HOURS = 6;
 /** Pages of 50 videos per sync: each is two YouTube calls and a few D1 queries. */
-const PAGES_PER_SYNC = 8;
+const PAGES_PER_SYNC = 5;
 /** D1 allows 100 bound values per query; a video row has 5. */
 const ROWS_PER_INSERT = 20;
 
@@ -113,8 +115,8 @@ export async function removeChannel(db: DB, id: string) {
 }
 
 /**
- * Keeps the videos up to date, a few pages at a time (the cron calls it every 10
- * minutes): first the newest videos of channels not checked for a while, then
+ * Keeps the videos up to date, a few pages at a time (visits start it, at most
+ * every 10 minutes): first the newest videos of channels not checked for a while, then
  * older videos of channels still being fetched, back to their first.
  */
 export async function sync(db: DB, yt: YouTube, now = new Date()) {
@@ -158,4 +160,23 @@ export async function knownChannels(db: DB, ids: string[]) {
 	if (!ids.length) return new Set<string>();
 	const rows = await db.select({ id: channel.id }).from(channel).where(inArray(channel.id, ids));
 	return new Set(rows.map((r) => r.id));
+}
+
+/**
+ * Syncs if no sync has started in the last 10 minutes. Called on visits (the free
+ * plan's five cron triggers are taken by other apps). Claiming the slot is one
+ * query, so two visits at once can't both sync.
+ */
+export async function syncIfDue(db: DB, yt: YouTube, now = new Date()) {
+	const cutoff = new Date(now.getTime() - SYNC_EVERY_MINUTES * 60_000).toISOString();
+	const claimed = await db
+		.insert(syncState)
+		.values({ id: 1, startedAt: now.toISOString() })
+		.onConflictDoUpdate({
+			target: syncState.id,
+			set: { startedAt: now.toISOString() },
+			setWhere: lt(syncState.startedAt, cutoff)
+		})
+		.returning({ id: syncState.id });
+	return claimed.length ? sync(db, yt, now) : null;
 }

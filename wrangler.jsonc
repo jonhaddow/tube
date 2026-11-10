@@ -15,12 +15,7 @@
 	"observability": {
 		"enabled": true
 	},
-	"triggers": {
-		// Fetches videos from YouTube a few pages at a time (worker/entry.js → /sync).
-		"crons": ["*/10 * * * *"]
-	},
 	"vars": {
-		"APP_ORIGIN": "https://tube.app.haddow.me",
 		// Public OAuth client ID; the secret is a Worker secret (GOOGLE_CLIENT_SECRET).
 		"GOOGLE_CLIENT_ID": "856408914710-dgcs4pkdkahr6jchr0pefodiobhjrmv4.apps.googleusercontent.com"
 	},
