@@ -12,7 +12,6 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 	return {
 		channel: { id: c.id, title: c.title, avatar: c.avatar },
 		...(await channelVideos(locals.db, c.id, n)),
-		n,
-		page: PAGE
+		next: n + PAGE
 	};
 };

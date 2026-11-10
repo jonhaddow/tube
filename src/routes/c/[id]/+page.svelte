@@ -14,7 +14,7 @@
 	<header>
 		<a class="back" href="/" aria-label="All channels"><BackIcon /></a>
 		<Avatar src={data.channel.avatar} title={data.channel.title} size={64} />
-		<h1>{data.channel.title}</h1>
+		<h1><span class="path">&gt; </span>{data.channel.title}</h1>
 	</header>
 
 	{#if data.videos.length}
@@ -39,17 +39,17 @@
 		{#if data.more}
 			<p class="more">
 				<a
-					class="btn sun"
-					href="?n={data.n + data.page}"
+					class="btn"
+					href="?n={data.next}"
 					data-sveltekit-reset="false"
 					data-sveltekit-replacestate>More videos</a
 				>
 			</p>
 		{/if}
 	{:else}
-		<div class="empty card">
+		<div class="empty">
 			<h2>No videos yet</h2>
-			<p>They’re on their way. Try again in a bit.</p>
+			<p class="muted">Downloading the list… try again in a bit.</p>
 		</div>
 	{/if}
 </main>
@@ -58,16 +58,16 @@
 	header {
 		display: flex;
 		align-items: center;
-		gap: 16px;
-		margin: 4px 0 30px;
+		gap: 14px;
+		margin: 4px 0 28px;
 	}
 	h1 {
-		font-size: clamp(30px, 5vw, 46px);
-		color: var(--paper);
-		-webkit-text-stroke: 2px var(--ink);
-		paint-order: stroke fill;
-		text-shadow: 3px 3px 0 var(--ink);
+		font-size: clamp(36px, 6vw, 56px);
 		overflow-wrap: anywhere;
+	}
+	.path {
+		margin-right: 0.3em;
+		color: var(--green-dim);
 	}
 	.videos {
 		list-style: none;
@@ -75,53 +75,53 @@
 		padding: 0;
 		display: grid;
 		grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-		gap: 26px 22px;
+		gap: 22px 18px;
 	}
 	.videos a {
 		display: flex;
 		flex-direction: column;
 		height: 100%;
 		text-decoration: none;
-		background: var(--paper);
+		background: var(--panel);
 		border: var(--line);
-		border-radius: var(--corner);
-		box-shadow: var(--lift);
+		border-radius: 2px;
 		overflow: hidden;
-		transition:
-			transform 80ms,
-			box-shadow 80ms;
 	}
-	.videos a:active {
-		transform: translate(4px, 4px);
-		box-shadow: 1px 1px 0 var(--ink);
+	.videos a:active,
+	.videos a:hover {
+		border-color: var(--green);
+		box-shadow: var(--glow);
 	}
 	.thumb {
 		position: relative;
 		display: block;
 		aspect-ratio: 16 / 9;
-		background: var(--sky-deep);
-		border-bottom: var(--line);
+		background: #000;
+		overflow: hidden;
 	}
-	/* hqdefault is 4:3 with bars; cover crops them off. */
+	/* hqdefault is 4:3 with black bars above and below: centred in 16:9, they're cut off. */
 	.thumb img {
+		position: absolute;
+		top: 50%;
 		width: 100%;
-		height: 100%;
-		object-fit: cover;
+		aspect-ratio: 4 / 3;
+		transform: translateY(-50%);
 	}
 	.length {
 		position: absolute;
-		right: 8px;
-		bottom: 8px;
-		padding: 2px 8px;
-		font-size: 14px;
+		right: 6px;
+		bottom: 6px;
+		padding: 1px 6px;
+		font-size: 13px;
 		font-weight: 700;
-		background: var(--sun);
-		border: 2px solid var(--ink);
-		border-radius: 8px;
+		color: var(--amber);
+		background: rgb(0 0 0 / 0.8);
+		border-radius: 2px;
 	}
 	.title {
 		padding: 10px 12px 12px;
-		font-weight: 600;
+		font-size: 14px;
+		font-weight: 500;
 	}
 	.title span {
 		display: -webkit-box;
@@ -131,7 +131,7 @@
 		overflow: hidden;
 	}
 	.more {
-		margin: 36px 0 0;
+		margin: 32px 0 0;
 		text-align: center;
 	}
 </style>

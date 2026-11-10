@@ -7,8 +7,9 @@
 </svelte:head>
 
 <main class="page">
-	<div class="empty card">
-		<h2>{page.status === 404 ? 'Nothing here' : 'Something went wrong'}</h2>
-		<p><a class="btn sun" href="/">Back to the channels</a></p>
+	<div class="empty">
+		<h2>ERROR {page.status}</h2>
+		<p class="muted">{page.status === 404 ? 'Nothing here.' : 'Something went wrong.'}</p>
+		<p><a class="btn" href="/">Back to the channels</a></p>
 	</div>
 </main>

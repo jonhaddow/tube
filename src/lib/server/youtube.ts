@@ -39,7 +39,11 @@ type VideoList = {
 	items?: {
 		id: string;
 		snippet: { title: string; publishedAt: string; liveBroadcastContent?: string };
-		contentDetails: { duration: string; regionRestriction?: Region };
+		contentDetails: {
+			duration: string;
+			regionRestriction?: Region;
+			contentRating?: { ytRating?: string };
+		};
 		status: { embeddable?: boolean; privacyStatus?: string };
 	}[];
 };
@@ -114,6 +118,7 @@ export function youtubeApi(key: string, fetcher: Fetch = fetch): YouTube {
 			// UULF… is the channel's uploads without Shorts (UU… has them all).
 			const list = await get<PlaylistItems>('playlistItems', {
 				part: 'contentDetails',
+				fields: 'nextPageToken,items/contentDetails/videoId',
 				playlistId: `UULF${channelId.slice(2)}`,
 				maxResults: '50',
 				...(page ? { pageToken: page } : {})
@@ -123,6 +128,9 @@ export function youtubeApi(key: string, fetcher: Fetch = fetch): YouTube {
 			// The playlist doesn't say which can be embedded, or how long they are.
 			const details = await get<VideoList>('videos', {
 				part: 'snippet,contentDetails,status',
+				// Only what's used: full answers are several KB a video, too much to parse in the CPU limit.
+				fields:
+					'items(id,snippet(title,publishedAt,liveBroadcastContent),contentDetails(duration,regionRestriction,contentRating/ytRating),status(embeddable,privacyStatus))',
 				id: ids.join(',')
 			});
 			const videos = (details?.items ?? [])
@@ -130,6 +138,8 @@ export function youtubeApi(key: string, fetcher: Fetch = fetch): YouTube {
 					(v) =>
 						v.status.embeddable !== false &&
 						watchableHere(v.contentDetails.regionRestriction) &&
+						// Age-restricted videos don't play in embeds.
+						v.contentDetails.contentRating?.ytRating !== 'ytAgeRestricted' &&
 						v.status.privacyStatus === 'public' &&
 						(v.snippet.liveBroadcastContent ?? 'none') === 'none'
 				)
