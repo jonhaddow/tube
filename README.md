@@ -14,6 +14,16 @@ Kids browse channels and watch videos with no sign-in. Grown-ups sign in to add 
 - [Vitest](https://vitest.dev) and [Playwright](https://playwright.dev) for tests
 - Deployed from `main` by Cloudflare Workers Builds
 
-## Development
+## Running locally
 
-See [`docs/development.md`](docs/development.md) for running it locally, configuration and deploying.
+```sh
+npm install
+npm run db:migrate:local
+npx wrangler d1 execute tube --local --command "INSERT INTO user (email, name) VALUES ('you@example.com', 'You')"
+cp .dev.vars.example .dev.vars   # add YOUTUBE_API_KEY for real channels; without it they're made up
+npm run dev    # the login page has dev-only "Sign in as" buttons
+```
+
+Without `YOUTUBE_API_KEY` in `.dev.vars`, it shows made-up channels.
+
+Tests: `npm test` (unit), `npm run test:e2e` (Playwright), `npm run check` (types), `npm run lint`.
