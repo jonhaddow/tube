@@ -52,6 +52,32 @@
 
 	const toggle = () => command(playing ? 'pauseVideo' : 'playVideo');
 
+	// Keep the screen on while it plays: iOS doesn't count a video in an iframe and
+	// dims, then locks. The lock is dropped when the page is hidden, so it's asked
+	// for again on coming back.
+	$effect(() => {
+		if (!playing || !('wakeLock' in navigator)) return;
+		let lock: WakeLockSentinel | undefined;
+		let done = false;
+		const take = async () => {
+			if (document.hidden || (lock && !lock.released)) return;
+			try {
+				const next = await navigator.wakeLock.request('screen');
+				if (done) void next.release();
+				else lock = next;
+			} catch {
+				// Refused (low battery mode): the screen just dims as before.
+			}
+		};
+		void take();
+		document.addEventListener('visibilitychange', take);
+		return () => {
+			done = true;
+			document.removeEventListener('visibilitychange', take);
+			void lock?.release();
+		};
+	});
+
 	// Once told we're listening, the player posts its state several times a second.
 	function listen(el: HTMLIFrameElement) {
 		let timer: ReturnType<typeof setTimeout> | undefined;
