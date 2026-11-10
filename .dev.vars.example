@@ -1,0 +1,4 @@
+GOOGLE_CLIENT_SECRET=dev-client-secret
+CRON_SECRET=dev-cron-secret
+# Leave empty to use the made-up channels in fake-youtube.ts.
+YOUTUBE_API_KEY=

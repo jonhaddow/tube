@@ -1,0 +1,38 @@
+{
+	"$schema": "./node_modules/wrangler/config-schema.json",
+	"name": "tube",
+	"compatibility_date": "2026-10-03",
+	"compatibility_flags": ["nodejs_als"],
+	"main": ".svelte-kit/cloudflare/_worker.js",
+	"assets": {
+		"binding": "ASSETS",
+		"directory": ".svelte-kit/cloudflare"
+	},
+	// Only served on tube.app.haddow.me (sign-in sends people back there).
+	"workers_dev": false,
+	"routes": [{ "pattern": "tube.app.haddow.me", "custom_domain": true }],
+	// Keeps request logs and console output (Workers Logs, free tier) for debugging.
+	"observability": {
+		"enabled": true
+	},
+	"triggers": {
+		// Fetches videos from YouTube a few pages at a time (worker/entry.js → /sync).
+		"crons": ["*/10 * * * *"]
+	},
+	"vars": {
+		"APP_ORIGIN": "https://tube.app.haddow.me",
+		// Public OAuth client ID; the secret is a Worker secret (GOOGLE_CLIENT_SECRET).
+		"GOOGLE_CLIENT_ID": "856408914710-dgcs4pkdkahr6jchr0pefodiobhjrmv4.apps.googleusercontent.com"
+	},
+	// Off: branch previews would share the live D1 database.
+	"preview_urls": false,
+	"d1_databases": [
+		{
+			// Created with --jurisdiction eu, so the data stays in the EU.
+			"binding": "DB",
+			"database_name": "tube",
+			"database_id": "329e4d93-d0b5-4ac7-ac50-7e0bc2813774",
+			"migrations_dir": "drizzle"
+		}
+	]
+}

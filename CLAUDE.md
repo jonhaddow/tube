@@ -1,0 +1,16 @@
+# Tube
+
+A YouTube for two kids (6–8) on iPads: only channels a grown-up has allowed, no ads, no Shorts, nothing that leads to YouTube. A PWA at https://tube.app.haddow.me.
+
+## Worth knowing
+
+- The kids' side is public (no sign-in, read-only); only `/parent` and `/logout` need one (`PRIVATE` in `hooks.server.ts`). `/sync` takes the cron secret.
+- Videos come from the uploads-without-Shorts playlist (`UULF` + the channel id without `UC`), then `videos.list` to drop ones that can't be embedded, are live, or are blocked in the UK (`youtube.ts`). Thumbnails aren't stored: `i.ytimg.com/vi/<id>/hqdefault.jpg`.
+- The sync (`channels.ts`) does 8 pages of 50 a run, every 10 minutes, to stay inside the free plan's subrequests and D1 queries: the newest page of channels not checked for 6 hours, then older pages (`channel.olderPage`, null when done).
+- The player (`Player.svelte`): `controls=0` and a shield over the iframe so nothing in YouTube's player can be tapped; our buttons talk to it with the embed's postMessage API. If autoplay is refused, the shield's middle opens for one tap on YouTube's play button. Ending goes back to the channel.
+- Local dev and e2e use made-up channels (`fake-youtube.ts`) without `YOUTUBE_API_KEY`; e2e and `shot.sh` always do (`FAKE_YOUTUBE=1`).
+- No Tailwind or shadcn: plain CSS in `app.css` (sticker look: `--line`, `--lift`).
+
+## Review focus
+
+Anything that could let a kid reach YouTube or a video from a channel that isn't allowed. Workers CPU and subrequests in the sync, YouTube API quota (10,000 units a day; a search is 100).
