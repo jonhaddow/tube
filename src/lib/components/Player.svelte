@@ -53,7 +53,12 @@
 		const hello = () => send({ event: 'listening', id: 1, channel: 'widget' });
 		const onmessage = (e: MessageEvent) => {
 			if (e.source !== el.contentWindow || typeof e.data !== 'string') return;
-			type Info = { duration?: unknown; currentTime?: unknown; playerState?: unknown };
+			type Info = {
+				duration?: unknown;
+				currentTime?: unknown;
+				playerState?: unknown;
+				videoData?: { video_id?: unknown };
+			};
 			let info: Info | null | undefined;
 			try {
 				info = (JSON.parse(e.data) as { info?: Info | null }).info;
@@ -61,6 +66,13 @@
 				return;
 			}
 			if (!info) return;
+			// Its suggestions can load another video in place, skipping our filtering
+			// (Shorts, other channels): back to the channel instead.
+			const other = info.videoData?.video_id;
+			if (typeof other === 'string' && other !== id) {
+				onended();
+				return;
+			}
 			if (typeof info.duration === 'number' && info.duration > 0) duration = info.duration;
 			if (typeof info.currentTime === 'number') time = info.currentTime;
 			if (resumeAt && started && time >= resumeAt - 2) resumeAt = null;
