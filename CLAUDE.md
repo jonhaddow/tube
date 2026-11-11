@@ -1,6 +1,6 @@
 # Tube
 
-A YouTube for two kids (6–8) on iPads: only channels a grown-up has allowed, no ads, no Shorts. YouTube itself is blocked on their iPads, so links out of the player don't matter. A PWA at https://tube.app.haddow.me.
+A YouTube for younger kids on iPads: only channels a grown-up has allowed, no ads, no Shorts. YouTube itself is blocked on their iPads, so links out of the player don't matter. A PWA at https://tube.app.haddow.me.
 
 ## Worth knowing
 
@@ -10,7 +10,7 @@ A YouTube for two kids (6–8) on iPads: only channels a grown-up has allowed, n
 - The player (`Player.svelte`): YouTube's own controls, so full screen is the device's own (the iPhone's video player). We only listen to it (embed postMessage API) to keep the place and go back to the channel when it ends. A screen wake lock is held while it plays (iOS dims otherwise).
 - Where each video was left is kept per device in localStorage (`positions.ts`), not D1: the player seeks there once it starts, and channel pages show a bar on part-watched thumbnails.
 - Local dev and e2e use made-up channels (`fake-youtube.ts`) without `YOUTUBE_API_KEY`; e2e and `shot.sh` always do (`FAKE_YOUTUBE=1`).
-- No Tailwind or shadcn: plain CSS in `app.css`. The look is a terminal (green on black, monospace, square corners) so it doesn't feel babyish to the boys.
+- No Tailwind or shadcn: plain CSS in `app.css`. The look is a terminal (green on black, monospace, square corners) so it doesn't feel babyish.
 - Secrets: `GOOGLE_CLIENT_SECRET`, `YOUTUBE_API_KEY` (YouTube Data API v3; the same key as stash).
 
 ## Review focus
