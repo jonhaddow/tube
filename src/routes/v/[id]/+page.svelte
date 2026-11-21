@@ -14,8 +14,9 @@
 
 <main class="page">
 	<header>
-		<a class="back" href={channelUrl} aria-label="Back to {data.video.channelTitle}"><BackIcon /></a
-		>
+		<a class="back" href={channelUrl} aria-label="Back to {data.video.channelTitle}">
+			<BackIcon />
+		</a>
 		<Avatar src={data.video.avatar} title={data.video.channelTitle} size={52} />
 		<h1>{data.video.title}</h1>
 	</header>
