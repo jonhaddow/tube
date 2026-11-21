@@ -53,8 +53,10 @@
 					class="btn"
 					href="?n={data.next}"
 					data-sveltekit-reset="false"
-					data-sveltekit-replacestate>More videos</a
+					data-sveltekit-replacestate
 				>
+					More videos
+				</a>
 			</p>
 		{/if}
 	{:else}
